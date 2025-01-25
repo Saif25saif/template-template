@@ -1,0 +1,92 @@
+import 'dart:io';
+
+class TicTacToe {
+  List<String> board = List.filled(9, ' ');
+  String currentPlayer = 'X';
+
+  void displayBoard() {
+    print('\n');
+    for (int i = 0; i < 9; i += 3) {
+      print(' ${board[i]} | ${board[i + 1]} | ${board[i + 2]} ');
+      if (i < 6) print('---|---|---');
+    }
+    print('\n');
+  }
+
+  bool isMoveValid(int move) {
+    return move >= 0 && move < 9 && board[move] == ' ';
+  }
+
+  bool checkWin() {
+    // Winning combinations
+    List<List<int>> winCombinations = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+      [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+
+    for (var combo in winCombinations) {
+      if (board[combo[0]] == currentPlayer &&
+          board[combo[1]] == currentPlayer &&
+          board[combo[2]] == currentPlayer) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool isBoardFull() {
+    return !board.contains(' ');
+  }
+
+  void switchPlayer() {
+    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+  }
+
+  void play() {
+    print('Welcome to Tic-Tac-Toe!');
+    while (true) {
+      displayBoard();
+      print("Player $currentPlayer, enter your move (1-9): ");
+      int? move = int.tryParse(stdin.readLineSync() ?? '') ?? -1;
+      move -= 1; // Convert to 0-based index
+
+      if (isMoveValid(move)) {
+        board[move] = currentPlayer;
+
+        if (checkWin()) {
+          displayBoard();
+          print('Player $currentPlayer wins!');
+          break;
+        } else if (isBoardFull()) {
+          displayBoard();
+          print('The game is a draw!');
+          break;
+        }
+
+        switchPlayer();
+      } else {
+        print('Invalid move. Try again.');
+      }
+    }
+
+    print('Game over. Do you want to play again? (y/n): ');
+    String? playAgain = stdin.readLineSync()?.toLowerCase();
+    if (playAgain == 'y') {
+      resetGame();
+      play();
+    } else {
+      print('Thanks for playing!');
+    }
+  }
+
+  void resetGame() {
+    board = List.filled(9, ' ');
+    currentPlayer = 'X';
+  }
+}
+
+void main() {
+  TicTacToe game = TicTacToe();
+  game.play();
+}
